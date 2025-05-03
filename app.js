@@ -50,26 +50,18 @@ app.get("/", (req, res) => {
   res.send("Root Is Work")
 })
 app.use(flash());
-app.use((req, res, next) => {
-  res.locals.success = req.flash('success'); // for flash message
-  res.locals.error = req.flash('error'); // for flash message
-  next();
-});
 app.use(passport.initialize()); // initialize passport
 app.use(passport.session()); // use session for passport  
 passport.use(new LocalStrategy(User.authenticate())); // use local strategy for passport
 passport.serializeUser(User.serializeUser()); // serialize user for passport
 passport.deserializeUser(User.deserializeUser()); // deserialize user for passport
 
-// app.get("/demouser", async(req, res) => {
-//   let user = new User({ 
-//     email: "Demo@gmail.com",
-//     username: "DemoUser",
-//   });
-//   let newUser = await User.register(user, "DemoUser"); // register user with password
-//   res.send(newUser); // send user data
-
-// })
+app.use((req, res, next) => {
+  res.locals.success = req.flash('success'); // for flash message
+  res.locals.error = req.flash('error'); // for flash message
+  res.locals.currUser = req.user;
+  next();
+});
 
 
 app.use("/listings", listingRouter);

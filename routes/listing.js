@@ -2,20 +2,9 @@ const express = require("express");
 const router = express.Router();
 const warpAsync = require("../utils/warpAcync.js")
 const ExpressError = require("../utils/ExpressError.js")
-const { listingSchema , reviewSchema } = require("../schema.js")
-const Listing = require("../models/listing.js")
 
-// joi validation middleware 
-const validateListing = (req , res ,next)=>{
-  let {error} = listingSchema.validate(req.body)
-  
-  if (error) {
-    let errMsg = error.details.map((el)=> el.message).join(",")
-    throw new ExpressError(400 , errMsg)
-  }else{
-    next()
-  }
-}
+const Listing = require("../models/listing.js")
+const {isLoggedIn , isAuthor , validateListing} = require("../middleware.js")
 
 
 // index route 
@@ -28,16 +17,18 @@ router.get("/" , warpAsync(async(req, res)=>{
 // create route 
 
 // new route 
-router.get("/new" , warpAsync(async(req , res)=>{
+router.get("/new", isLoggedIn , warpAsync(async(req , res)=>{
   res.render("listings/new.ejs");
 }))
 // save route 
-router.post ("/" , validateListing , warpAsync( async (req ,res)=>{
+router.post ("/" , isLoggedIn , validateListing , warpAsync( async (req ,res)=>{
   console.log(req.body.listing)
   // if (!req.body.listing) {
   //   throw new ExpressError(400 , "Please Enter Valid Data For Listing")
   // } 
   let newListing = new Listing (req.body.listing);
+  console.log(req.user.id)
+  newListing.author = req.user.id;
   await newListing.save();
   req.flash("success", "Successfully Created A New Listing")
   res.redirect("/listings")
@@ -47,7 +38,7 @@ router.post ("/" , validateListing , warpAsync( async (req ,res)=>{
 // Read route 
 router.get("/:id",  warpAsync(async(req , res)=>{
   let { id } = req.params;
-  let listing = await Listing.findById(id).populate('reviews');
+  let listing = await Listing.findById(id).populate({path : 'reviews' ,  populate : {path: "author"},} ).populate("author");
   if (!listing) {
     req.flash("error", "Listing Not Found")
     res.redirect("/listings")
@@ -59,7 +50,7 @@ router.get("/:id",  warpAsync(async(req , res)=>{
 
 // update route 
 // edit 
-router.get("/:id/edit" , warpAsync(async (req, res)=>{
+router.get("/:id/edit" , isLoggedIn, isAuthor , warpAsync(async (req, res)=>{
   let { id } = req.params;
   let listing = await Listing.findById(id);
   if (!listing) {
@@ -71,7 +62,7 @@ router.get("/:id/edit" , warpAsync(async (req, res)=>{
 }))
 
 // update route 
-router.put ("/:id" , validateListing , warpAsync(async (req, res)=>{
+router.put ("/:id" , isLoggedIn , isAuthor , validateListing , warpAsync(async (req, res)=>{
   if (!req.body.listing) {
     throw new ExpressError(400 , "Please Enter Valid Data For Listing")
   }
@@ -82,7 +73,7 @@ router.put ("/:id" , validateListing , warpAsync(async (req, res)=>{
 }))
 
 // Delete route
-router.delete("/:id", warpAsync(async (req ,res)=>{
+router.delete("/:id", isLoggedIn, isAuthor , warpAsync(async (req ,res)=>{
   let {id} = req.params;
   let deleteListing = await Listing.findByIdAndDelete(id);
   console.log(deleteListing)

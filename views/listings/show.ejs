@@ -10,30 +10,41 @@
                     <img src="<%= listing.image %>" class="card-img-top showImg" alt="...">
                     <div class="card-body">
                         <p class="card-text">
+                            <b>Owner : </b>
+                            <%= listing.author.username %>
+                        </p>
+                        <p>
 
                             <b>Details :</b>
                             <%= listing.description %>
-                                <br>
-                                <b>Price : </b> &#8360; <%= listing.price.toLocaleString("en-PK") %> /Night
-                                    <br>
-                                    <b>Location :</b>
-                                    <%= listing.location %>
-                                        <br>
-                                        <b>Country : </b>
-                                        <%= listing.country %>
                         </p>
-                        <div class="show-btns d-flex">
-                            <a class="btn add-btn me-4" href="/listings/<%= listing.id%>/edit">Edit List</a>
-                            <form method="post" action="/listings/<%= listing.id%>?_method=Delete">
-                                <button class="btn btn-dark">Delete</button>
-                            </form>
-                        </div>
+
+                        <p>
+                            <b>Price : </b> &#8360; <%= listing.price.toLocaleString("en-PK") %> /Night
+                        </p>
+                        <p>
+                            <b>Location :</b>
+                            <%= listing.location %>
+                                <p>
+                                    <b>Country : </b>
+                                    <%= listing.country %>
+                                </p>
+                                <% if (currUser && currUser.equals(listing.author.id)) { %>
+                                 
+                                    <div class="show-btns d-flex">
+                                        <a class="btn add-btn me-4" href="/listings/<%= listing.id%>/edit">Edit List</a>
+                                        <form method="post" action="/listings/<%= listing.id%>?_method=Delete">
+                                            <button class="btn btn-dark">Delete</button>
+                                        </form>
+                                    </div>
+                                <% } %>
                     </div>
                 </div>
             </div>
         </div>
         <div class="show">
             <hr>
+            <% if (currUser) { %>
             <div class="mx-auto my-4">
                 <h4 class="mt-4">
                     Leave a Review
@@ -52,8 +63,8 @@
                     <button class="btn btn-outline-dark my-3">Submit</button>
                 </form>
             </div>
-
             <hr class="my-2">
+            <% } %>
 
 
             <p class="mt-5"><b> All Reviews</b> </p>
@@ -62,20 +73,25 @@
             <div class="row">
                 <% for (let review of listing.reviews) { %>
                     <div class="col-12 col-md-6 py-3">
-                        <div class="card ">
+                        <div class="card border mb-1">
                             <div class="card-body">
-                                <h5 class="card-title">User Not Found</h5>
+                                <h5 class="card-title"><%= review.author.username %></h5>
 
                                 <p class="card-text">
                                     <%= review.comment %>
                                 </p>
                                 <p class="card-text">
                                     <%= review.rating %> Star
-                                
+
                                 </p>
-                                <form action="/listings/<%= listing.id %>/reviews/<%= review.id%>?_method=DELETE" method="post">
+                                <% if (currUser && currUser.equals(review.author.id)) { %>
+                                 
+                                <form action="/listings/<%= listing.id %>/reviews/<%= review.id%>?_method=DELETE"
+                                    method="post">
+                                    
                                     <button class="btn btn-dark">Delete</button>
                                 </form>
+                                <% } %>
                             </div>
                         </div>
                     </div>
