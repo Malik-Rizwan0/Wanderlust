@@ -1,0 +1,36 @@
+<% layout('layouts/boilerplate') %>
+
+<div class="container mt-4">
+    <h2>Search Results for "<%= searchQuery %>"</h2>
+
+    <% if (listings.length === 0) { %>
+        <p>No listings found for "<%= searchQuery %>"</p>
+    <% } else { %>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <% for (const Listing of listings) { %>
+                <div class="col">
+                    <a href="/listings/<%= Listing._id %>" class="listing-link text-decoration-none text-dark">
+                        <div class="card h-100">
+                            <img src="<%= Listing.image.url %>" class="card-img-top" alt="<%= Listing.title %>">
+                            <div class="card-img-overlay"></div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <b><%= Listing.title %></b><br>
+                                    <% 
+                                        const taxRate = 16;
+                                        const taxAmount = (Listing.price * taxRate) / 100;
+                                        const totalPrice = Listing.price + taxAmount;
+                                    %>
+                                    &#8360; <%= Listing.price.toLocaleString("en-PK") %> /Night
+                                    <i class="taxRate">
+                                        &nbsp; + 16% = <%= totalPrice.toLocaleString("en-PK") %>
+                                    </i>
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+</div>

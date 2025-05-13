@@ -1,10 +1,14 @@
+require('dotenv').config();
+
 const express = require("express")
+
 const app = express()
 const path = require("path")
 const mongoose = require('mongoose');
 let methodOverride = require('method-override')
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -14,11 +18,11 @@ const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 const User = require("./models/user.js");
 
-// mongo connection
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+
+const dbUrl = process.env.ALTASDB_URL
 main().catch(err => console.log(err));
 async function main() {
-  await mongoose.connect(MONGO_URL);
+  await mongoose.connect(dbUrl);
 }
 // middleware 
 // used to parse incoming URL-encoded form data from POST requests.
@@ -33,9 +37,22 @@ app.set("views", path.join(__dirname, "views"))
 app.engine('ejs', ejsMate);
 // for static file 
 app.use(express.static(path.join(__dirname, '/public')));
+
+// Setup mongostore to store session in mongodb
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  crypto :{
+    secret: process.env.SESSION_SECRET,
+  },
+  touchAfter: 24 * 60 * 60, // time in seconds  
+})
+store.on("error", function (e) {
+  console.log("session store error", e)
+})
 // Setup session middleware
 app.use(session({
-  secret: 'your_secret_key', // important for signing the session ID cookie
+  store: store,          // store session in mongodb
+  secret:  process.env.SESSION_SECRET, // important for signing the session ID cookie
   resave: false,             // don't save session if unmodified
   saveUninitialized: true,   // save new sessions
   cookie: {

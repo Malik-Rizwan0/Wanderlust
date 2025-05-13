@@ -1,31 +1,111 @@
 <% layout("/layouts/boilerplate") %>
 
 
-<body>
-    <h3>All Listing</h3>
-    <!-- <form action="/listings/new" method="get">
-        <button> Create New Post</button>
-    </form> -->
+    <body>
+        <div class="row">
+            <div class="col-md-8 filters">
+                <a href="/listings" class="<%= currentCategory === '' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fa-solid fa-house"></i></b>
+                        <p>All</p>
+                    </div>
+                </a>
+                <a href="/listings?category=Trending" class="<%= currentCategory === 'Trending' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fa-solid fa-fire"></i></b>
+                        <p>Trending</p>
+                    </div>
+                </a>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 ">
-        <% for (const Listing of allListings) { %>
-            <a href="/listings/<%= Listing.id %>" class="listing-link"> 
-                <div class="card col">
-                    <img src="<%= Listing.image %>" class="card-img-top" alt="...">
-                    <div class="card-img-overlay"></div>
-                    <div class="card-body">
-                      <p class="card-text">
-                        <b><%= Listing.title %></b>
-                        <br>
-                        &#8360; <%= Listing.price.toLocaleString("en-PK") %> /Night
-                      </p>
+                <a href="/listings?category=Room" class="<%= currentCategory === 'Room' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fa-solid fa-bed"></i></b>
+                        <p>Room</p>
+                    </div>
+                </a>
+
+                <a href="/listings?category=Iconic City"
+                    class="<%= currentCategory === 'Iconic City' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fa-solid fa-mountain-city"></i></b>
+                        <p>Iconic City</p>
+                    </div>
+                </a>
+
+                <a href="/listings?category=Mountain" class="<%= currentCategory === 'Mountain' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fa-solid fa-mountain"></i></b>
+                        <p>Mountain</p>
+                    </div>
+                </a>
+
+                <a href="/listings?category=Castles" class="<%= currentCategory === 'Castles' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fa-brands fa-fort-awesome"></i></b>
+                        <p>Castles</p>
+                    </div>
+                </a>
+
+                <a href="/listings?category=Island" class="<%= currentCategory === 'Island' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fa-solid fa-house-flood-water"></i></b>
+                        <p>Island</p>
+                    </div>
+                </a>
+
+                <a href="/listings?category=Tropical" class="<%= currentCategory === 'Tropical' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fas fa-umbrella-beach"></i></b>
+                        <p>Tropical</p>
+                    </div>
+                </a>
+
+                <a href="/listings?category=Camp" class="<%= currentCategory === 'Camp' ? 'active' : '' %>">
+                    <div class="filter">
+                        <b><i class="fa-solid fa-campground"></i></b>
+                        <p>Camp</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 d-flex justify-content-end align-items-center">
+                <div class="tax-toggle">
+
+                    <div class="form-check form-switch form-check-reverse">
+                        <input class="form-check-input" type="checkbox" role="switch" id="taxSwitch">
+                        <label class="form-check-label" for="taxSwitch"><b>Display total after taxes</b></label>
                     </div>
                 </div>
-                
-            </a>
-        <%  } %>    
-    </div>
+            </div>
+        </div>
 
-   
-        
-</body>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 ">
+            <% for (const Listing of allListings) { %>
+                <a href="/listings/<%= Listing.id %>" class="listing-link">
+                    <div class="card col">
+                        <img src="<%= Listing.image.url %>" class="card-img-top" alt="...">
+                        <div class="card-img-overlay"></div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <b>
+                                    <%= Listing.title %>
+                                </b>
+                                <br>
+                                <% const taxRate=16; const taxAmount=(Listing.price * taxRate) / 100; const
+                                    totalPrice=Listing.price + taxAmount; %>
+                                    &#8360; <%= Listing.price.toLocaleString("en-PK") %>
+                                        /Night
+                                        <i class="taxRate">
+                                            &nbsp; + 16% = <%= totalPrice.toLocaleString("en-PK") %>
+                                        </i>
+
+                            </p>
+                        </div>
+                    </div>
+
+                </a>
+                <% } %>
+        </div>
+
+
+
+    </body>

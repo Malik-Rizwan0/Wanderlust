@@ -6,28 +6,12 @@ const { reviewSchema } = require("../schema.js")
 const Review = require("../models/review.js")
 const Listing = require("../models/listing.js")
 const { validatereview, isLoggedIn, isReviewAuthor } = require("../middleware.js")
+const reviewController = require("../controllers/review.js")
 
 
-
-router.post("/", validatereview, isLoggedIn, warpAsync(async (req, res) => {
-    let { id } = req.params;
-    let listing = await Listing.findById(id);
-    let newReview = new Review(req.body.review);
-    newReview.author = req.user.id; // add author to review
-    listing.reviews.push(newReview);
-    await newReview.save();
-    await listing.save();
-    req.flash("success", "Successfully added a new review")
-    res.redirect(`/listings/${id}`)
-}))
+router.post("/", validatereview, isLoggedIn, warpAsync(reviewController.createReview))
 
 // delete review route
-router.delete("/:reviewId", isLoggedIn, isReviewAuthor,  warpAsync(async (req, res) => {
-    let { id, reviewId } = req.params;
-    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } })
-    await Review.findByIdAndDelete(reviewId);
-    req.flash("success", "Successfully deleted the review")
-    res.redirect(`/listings/${id}`)
-}))
+router.delete("/:reviewId", isLoggedIn, isReviewAuthor,  warpAsync(reviewController.destoryReview))
 
 module.exports = router;

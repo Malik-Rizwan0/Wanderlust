@@ -2,83 +2,48 @@ const express = require("express");
 const router = express.Router();
 const warpAsync = require("../utils/warpAcync.js")
 const ExpressError = require("../utils/ExpressError.js")
-
 const Listing = require("../models/listing.js")
-const {isLoggedIn , isAuthor , validateListing} = require("../middleware.js")
-
+const { isLoggedIn, isAuthor, validateListing } = require("../middleware.js")
+const controller = require("../controllers/listing.js")
+const multer = require('multer');
+const { storage } = require("../cloudconfig.js")
+const upload = multer({ storage })
 
 // index route 
-router.get("/" , warpAsync(async(req, res)=>{
-  let allListings = await Listing.find({})
-  res.render("listings/index.ejs" , {allListings})
-}))
+router.route("/")
+    .get(warpAsync(controller.listingIndex))
+    .post(
+        isLoggedIn,
+        upload.single('listing[image]'),
+        validateListing,
+        warpAsync(controller.newListing)
+    );
+
+router.get("/new", isLoggedIn, warpAsync(controller.newListingForm));
 
 
-// create route 
-
-// new route 
-router.get("/new", isLoggedIn , warpAsync(async(req , res)=>{
-  res.render("listings/new.ejs");
-}))
-// save route 
-router.post ("/" , isLoggedIn , validateListing , warpAsync( async (req ,res)=>{
-  console.log(req.body.listing)
-  // if (!req.body.listing) {
-  //   throw new ExpressError(400 , "Please Enter Valid Data For Listing")
-  // } 
-  let newListing = new Listing (req.body.listing);
-  console.log(req.user.id)
-  newListing.author = req.user.id;
-  await newListing.save();
-  req.flash("success", "Successfully Created A New Listing")
-  res.redirect("/listings")
-}))
 
 
-// Read route 
-router.get("/:id",  warpAsync(async(req , res)=>{
-  let { id } = req.params;
-  let listing = await Listing.findById(id).populate({path : 'reviews' ,  populate : {path: "author"},} ).populate("author");
-  if (!listing) {
-    req.flash("error", "Listing Not Found")
-    res.redirect("/listings")
-  }else{
-  res.render ("listings/show.ejs" , {listing})
-  }
-}))
+router.get('/search', controller.searchListing);
 
 
-// update route 
-// edit 
-router.get("/:id/edit" , isLoggedIn, isAuthor , warpAsync(async (req, res)=>{
-  let { id } = req.params;
-  let listing = await Listing.findById(id);
-  if (!listing) {
-    req.flash("error", "Listing Not Found")
-    res.redirect("/listings")
-  }else{
-  res.render("listings/edit.ejs" , {listing})
-  }
-}))
 
-// update route 
-router.put ("/:id" , isLoggedIn , isAuthor , validateListing , warpAsync(async (req, res)=>{
-  if (!req.body.listing) {
-    throw new ExpressError(400 , "Please Enter Valid Data For Listing")
-  }
-  let { id } = req.params;
-  await Listing.findByIdAndUpdate(id, {...req.body.listing} );
-  req.flash("success", "Successfully Updated The Listing")
-  res.redirect(`/listings/${id}`)
-}))
 
-// Delete route
-router.delete("/:id", isLoggedIn, isAuthor , warpAsync(async (req ,res)=>{
-  let {id} = req.params;
-  let deleteListing = await Listing.findByIdAndDelete(id);
-  console.log(deleteListing)
-  req.flash("success", "Successfully Deleted The Listing")
-  res.redirect("/listings")
-}))
+router.route("/:id")
+    .get(warpAsync(controller.listingDetails))
+    .put(isLoggedIn,
+        isAuthor,
+        upload.single('listing[image]'),
+        validateListing, warpAsync(controller.updateListing))
+    .delete(isLoggedIn, isAuthor, warpAsync(controller.destoryListing));
+router.get("/:id/edit", isLoggedIn, isAuthor, warpAsync(controller.listingEditForm))
 
 module.exports = router;
+
+
+
+
+
+
+
+
