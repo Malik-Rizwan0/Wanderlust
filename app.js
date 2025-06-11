@@ -64,7 +64,7 @@ app.use(session({
 
 // route 
 app.get("/", (req, res) => {
-  res.send("Root Is Work")
+  res.redirect("/listings");
 })
 app.use(flash());
 app.use(passport.initialize()); // initialize passport
