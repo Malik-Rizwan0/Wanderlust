@@ -93,6 +93,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render("error.ejs", { message });
 })
 // port 
-app.listen(8080, () => {
-  console.log("app is listing")
+const port = process.env.PORT = 8080
+app.listen(port, () => {
+  console.log("app is listing" ,  port )
 })
