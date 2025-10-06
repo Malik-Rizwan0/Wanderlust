@@ -6,7 +6,7 @@ A full-stack **Node.js + Express** app that allows users to manage real estate l
 
 ## 🌐 Online Preview (Demo)
 
-> **Live Demo:** *Available upon request.*
+> **Live Demo:** *[Available upon request.](https://wanderlust-emsx.onrender.com/)*
 >
 > Built with security, session handling, and clean architecture — great for showcasing backend and full-stack skills.
 
