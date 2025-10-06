@@ -6,7 +6,7 @@ const Listing = require("../models/listing.js")
 const { isLoggedIn, isAuthor, validateListing } = require("../middleware.js")
 const controller = require("../controllers/listing.js")
 const multer = require('multer');
-const { storage } = require("../cloudconfig.js")
+const { storage } = require("../cloudConfig.js")
 const upload = multer({ storage })
 
 // index route 
